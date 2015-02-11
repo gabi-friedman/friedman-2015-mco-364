@@ -15,7 +15,7 @@ public class SmileComponant extends JComponent {
 	protected void paintComponent(Graphics g) {
 		// TODO Auto-generated method stub
 		super.paintComponent(g);
-
+		
 		g.setColor(Color.YELLOW);
 		g.fillOval(200, 100, 400, 400);
 		g.setColor(Color.RED);
@@ -36,6 +36,8 @@ public class SmileComponant extends JComponent {
 		}
 		wink = false;
 	}
+		
+		
 		/*if(!wink){
 			g.fillOval(330,205, 50, 50);
 			wink=true;
