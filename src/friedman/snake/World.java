@@ -2,164 +2,134 @@ package friedman.snake;
 
 import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.Point;
-import java.util.Random;
 
-import javax.swing.JComponent;
-import javax.swing.JOptionPane;
+public class World {
 
-public class World extends JComponent{
+	private final int boxSize = 15;
+	private final int gridWidth = 40;
+	private final int gridHeight = 40;
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-	private Snake snake;
-	private Food food;
-	
-	private final int boxh = 15;
-	private final int boxw = 15;
-	private final int gridh = 25;
-	private final int gridw = 25;
-	
-	private int score = 0;
-	
-	public World(){
-		
-		food = new Food();
-		snake = new Snake();
-		generateDefaultSnake();
-		placeFood();
-		
-		
-	}
-	
-	public void drawScore(Graphics g){
-		g.drawString("Score: " + score, 0, boxh*gridh + 10);
+	private Snake s;
+	private Food f;
+	private Direction dir;
+
+	private boolean gameOver;
+	private boolean gameWon;
+
+	public World() {
+		dir = Direction.NO_DIRECTION;
+		s = new Snake(boxSize);
+		f = new Food(gridWidth, gridHeight, boxSize, s.getSnake());
+		gameOver = false;
+		gameWon = false;
 	}
 
-	public void drawGrid(Graphics g){
-		g.drawRect(0,0,gridw * boxw, gridh*boxh);
-		for(int i = boxw; i < gridw* boxw; i+=boxw){
-			g.drawLine(i, 0, i, boxh*gridh);
-		}
-		for(int i = boxh; i < gridh* boxh; i+=boxh){
-			g.drawLine(0, i, gridw*boxw, i);
-		}
+	public void makeSnake() {
+		s.clear();
+		s = new Snake(boxSize);
+		dir = Direction.NO_DIRECTION;
 	}
 
-	public void drawSnake(Graphics g){
-		g.setColor(Color.GREEN);
-		Point p;
-		for(int i = 0; i < snake.size(); i++){
-			p = snake.get(i);
-			g.fillRect(p.x * boxw, p.y * boxh, boxw, boxh);
-		}
-		g.setColor(Color.BLACK);
+	public void makeFood() {
+		f = new Food(gridWidth, gridHeight, boxSize, s.getSnake());
 	}
 
-	public void drawFood(Graphics g){
-		g.setColor(Color.RED);
-		int x = food.getX();
-		int y = food.getY();
-		g.fillOval(x * boxw, y * boxh, boxw, boxh);
-		g.setColor(Color.BLACK);
-	}
+	public void draw(Graphics g) {
+		if (gameOver) {
+			g.drawString("Game Over!", 150, 150);
+			g.drawString("Press ENTER to restart", 150, 170);
+		} 
+		else if (gameWon) {
+			g.drawString("Woohoo!!!! U win!!!", 150, 150);
+			g.drawString("Press ENTER to restart", 150, 170);
 
-	public void generateDefaultSnake(){
-		score = 0;
-		snake.clear();
+		} 
+		else {
+			g.setColor(Color.CYAN);
+			g.fillRect(boxSize, boxSize, gridWidth * boxSize, gridHeight * boxSize);
 
-		snake.add(new Point(2,3));
-		snake.add(new Point(2,2));
-		snake.add(new Point(2,1));
-	}
-
-	public void placeFood(){
-
-		Random num = new Random();
-
-		int xRand = num.nextInt(gridw);
-		int yRand = num.nextInt(gridh);
-		Point random = new Point(xRand,yRand);
-		while(snake.contains(random)){
-			xRand = num.nextInt(gridw);
-			yRand = num.nextInt(gridh);
-			random = new Point(xRand,yRand);
-		}
-		food.setLocation(random);
-	}
-	
-
-	public void move(int direction) {
-		Point head = snake.peekFirst();
-		Point newPt = new Point();
-		switch(direction){
-		case (Direction.NORTH):{
-			newPt = new Point(head.x, head.y+1);
-			break;
-		}
-		case (Direction.SOUTH):{
-			newPt = new Point(head.x, head.y-1);
-			break;
-		}
-		case (Direction.WEST):{
-			newPt = new Point(head.x-1, head.y);
-			break;
-		}
-		case (Direction.EAST):{
-			newPt = new Point(head.x+1, head.y);
-			break;
-		}
-
-		}
-
-		snake.removeLast();
-
-		if(newPt.equals(food)){
-			Point addPt = (Point) newPt.clone(); 
-
-			switch(direction){
-			case (Direction.NORTH):{
-				newPt = new Point(head.x, head.y+1);
-				break;
+			g.setColor(Color.GREEN);
+			for (SnakeBodyPiece p : s.getSnake()) {
+				g.fillRect(p.getX(), p.getY(), p.getDirection(), p.getDirection());
 			}
-			case (Direction.SOUTH):{
-				newPt = new Point(head.x, head.y-1);
-				break;
-			}
-			case (Direction.WEST):{
-				newPt = new Point(head.x-1, head.y);
-				break;
-			}
-			case (Direction.EAST):{
-				newPt = new Point(head.x+1, head.y);
-				break;
-			}
+			g.setColor(Color.RED);
 
-			}
-			score++;
-			snake.add(addPt);
-			placeFood();
-
+			g.fillRect(f.getFood().getX(), f.getFood().getY(), boxSize, boxSize);
 		}
-		else if(newPt.x < 0 || newPt.x > gridw - 1){
-			generateDefaultSnake();
-			JOptionPane.showMessageDialog(null, "YOU LOST! :(", "Loser!", JOptionPane.ERROR_MESSAGE);
+
+	}
+
+	public void move() {
+		/*
+		 * if (direction == Direction.NO_DIRECTION) { return; }
+		 */
+		SnakeBodyPiece head = s.getHead();
+		SnakeBodyPiece newPoint = head;
+		switch (dir) {
+		case NO_DIRECTION:
 			return;
+		case NORTH:
+			newPoint = new SnakeBodyPiece(head.getX(), head.getY() - boxSize, boxSize);
+			break;
+		case SOUTH:
+			newPoint = new SnakeBodyPiece(head.getX(), head.getY() + boxSize, boxSize);
+			break;
+		case WEST:
+			newPoint = new SnakeBodyPiece(head.getX() - boxSize, head.getY(), boxSize);
+			break;
+		case EAST:
+			newPoint = new SnakeBodyPiece(head.getX() + boxSize, head.getY(), boxSize);
+			break;
+
 		}
-		else if(newPt.y < 0 || newPt.y > gridh - 1){
-			generateDefaultSnake();
-			JOptionPane.showMessageDialog(null, "YOU LOST! :(", "Loser!", JOptionPane.ERROR_MESSAGE);
+		s.removeLast();
+		if (newPoint.equals(f.getFood())) {
+			SnakeBodyPiece addPoint = new SnakeBodyPiece(newPoint.getX(), newPoint.getY(),
+					newPoint.getDirection());// newPoint;
+			s.pushHead(addPoint);
+			makeFood();
+
+		} else if (newPoint.getX() < boxSize
+				|| newPoint.getX() > gridWidth * boxSize) {
+			gameOver = true;
+			makeSnake();
 			return;
-		}
-		else if(snake.contains(newPt)){
-			generateDefaultSnake();
-			JOptionPane.showMessageDialog(null, "YOU LOST! :(", "Loser!", JOptionPane.ERROR_MESSAGE);
+		} else if (newPoint.getY() < boxSize
+				|| newPoint.getY() > gridHeight * boxSize) {
+			gameOver = true;
+			makeSnake();
+			return;
+
+		} else if (s.contains(newPoint)) {
+			gameOver = true;
+			makeSnake();
+			return;
+		} else if (s.getSize() == gridHeight * gridWidth) {
+			gameWon = true;
 			return;
 		}
 
-		snake.add(newPt);
-
+		s.pushHead(newPoint);
 	}
+
+	public void setDirection(Direction direction) {
+		this.dir = direction;
+	}
+
+	public boolean isGameOver() {
+		return gameOver;
+	}
+
+	public void setGameOver(boolean boo) {
+		gameOver = boo;
+	}
+
+	public boolean isWonGame() {
+		return gameWon;
+	}
+
+	public void setWonGame(boolean b) {
+		gameWon = b;
+	}
+
 }

@@ -1,21 +1,22 @@
 package friedman.snake;
 
-public class GameLoopThread extends Thread{
+public class GameLoopThread extends Thread {
 
-	private WorldComponant sc;
-	
-	public GameLoopThread(WorldComponant sc){
-		this.sc = sc;
+	private SnakeFrame comp;
+
+	public GameLoopThread(SnakeFrame component) {
+		comp = component;
 	}
-	
-	
-	
-	public void run(){
-		while(true){
-			sc.repaint();
-			try{
-				Thread.sleep(100);
-			}catch(Exception e){
+
+	public void run() {
+		while (true) {
+			comp.getWorldComponent().getWorld()
+					.setDirection(comp.getDirection());
+			comp.getWorldComponent().getWorld().move();
+			comp.repaint();
+			try {
+				Thread.sleep(200);
+			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 		}

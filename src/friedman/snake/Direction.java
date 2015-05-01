@@ -1,9 +1,15 @@
 package friedman.snake;
 
-public class Direction {
-	public static final int NO_DIRECTION = 0;
-	public static final int NORTH = 1;
-	public static final int SOUTH = 2;
-	public static final int EAST = 3;
-	public static final int WEST = 4;
+public enum Direction {
+
+	NO_DIRECTION(0), NORTH(1), SOUTH(2), WEST(3), EAST(4);
+	private int num;
+
+	private Direction(int num) {
+		this.num = num;
+	}
+
+	public int getDirection() {
+		return num;
+	}
 }
