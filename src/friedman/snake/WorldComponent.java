@@ -10,7 +10,7 @@ public class WorldComponent extends JComponent {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	
+
 	private World world;
 
 	public WorldComponent(World world) {

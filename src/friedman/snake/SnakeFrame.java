@@ -13,7 +13,7 @@ public class SnakeFrame extends JFrame implements KeyListener {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	
+
 	private Direction dir;
 	private World w;
 	private WorldComponent wc;
@@ -25,13 +25,13 @@ public class SnakeFrame extends JFrame implements KeyListener {
 
 		Container contentPane = getContentPane();
 		contentPane.setLayout(new BorderLayout());
-		
+
 		w = new World();
 		wc = new WorldComponent(w);
 		wc.addKeyListener(this);
 		wc.setFocusable(true);
 		contentPane.add(wc);
-		
+
 		dir = Direction.NO_DIRECTION;
 	}
 
@@ -58,37 +58,37 @@ public class SnakeFrame extends JFrame implements KeyListener {
 			if (dir != Direction.SOUTH) {
 				dir = Direction.NORTH;
 			}
-			break;
+		break;
 		case (KeyEvent.VK_DOWN):
 		case (KeyEvent.VK_2):
 			if (dir != Direction.NORTH) {
 				dir = Direction.SOUTH;
 			}
-			break;
+		break;
 		case (KeyEvent.VK_RIGHT):
 		case (KeyEvent.VK_6):
 			if (dir != Direction.WEST) {
 				dir = Direction.EAST;
 			}
-			break;
+		break;
 		case (KeyEvent.VK_LEFT):
 		case (KeyEvent.VK_4):
 			if (dir != Direction.EAST) {
 				dir = Direction.WEST;
 			}
-			break;
+		break;
 		case (KeyEvent.VK_ENTER):
-			if (w.isGameOver()) {
+			if (w.getGameOver()) {
 				w.setGameOver(false);
 				dir = Direction.NO_DIRECTION;
 				w.makeSnake();
 			}
-			if (w.isWonGame()) {
-				w.setWonGame(false);
-				dir = Direction.NO_DIRECTION;
-				w.makeSnake();
-			}
-			break;
+		if (w.getGameWon()) {
+			w.setGameWon(false);
+			dir = Direction.NO_DIRECTION;
+			w.makeSnake();
+		}
+		break;
 
 		}
 	}

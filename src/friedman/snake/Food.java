@@ -4,46 +4,39 @@ import java.util.LinkedList;
 import java.util.Random;
 
 public class Food {
-	private SnakeBodyPiece fruit;
+	private SnakeBodyPiece food;
 	private int height;
 	private int width;
 	private int size;
-	private Random randomGenerator;
-//	private Random x;
-//	private Random y;
+	private Random r;
 
-	// private LinkedList<Segmant> list;
-
-	public Food(int height, int width, int big, LinkedList<SnakeBodyPiece> list) {
-		// this.list = list;
-	//	x = new Random();
-	//	y = new Random();
-		randomGenerator = new Random();
+	public Food(int height, int width, int big, LinkedList<SnakeBodyPiece> snake) {
+		r = new Random();
 		this.height = height;
 		this.width = width;
 		this.size = big;
-		int randomX = randomGenerator.nextInt(width) + 1;
-		int randomY = randomGenerator.nextInt(height) + 1;
+		int randomX = r.nextInt(width) + 1;
+		int randomY = r.nextInt(height) + 1;
 		SnakeBodyPiece seg = new SnakeBodyPiece(randomX * size, randomY * size, size);
 
-		for (SnakeBodyPiece p : list) {
+		for (SnakeBodyPiece p : snake) {
 			if (p.equals(seg)) {
-				randomX = randomGenerator.nextInt(width) + 1;
-				randomY = randomGenerator.nextInt(height) + 1;
+				randomX = r.nextInt(width) + 1;
+				randomY = r.nextInt(height) + 1;
 				seg = new SnakeBodyPiece(randomX * size, randomY * size, size);
 			}
 		}
-		fruit = seg;
+		food = seg;
 	}
 
 	public SnakeBodyPiece getFood() {
-		return fruit;
+		return food;
 	}
 
-	public void setFruit() {
-		int randomX = randomGenerator.nextInt(width) + 1;
-		int randomY = randomGenerator.nextInt(height) + 1;
-		fruit = new SnakeBodyPiece(randomX * size, randomY * size, size);
+	public void setFood() {
+		int randomX = r.nextInt(width) + 1;
+		int randomY = r.nextInt(height) + 1;
+		food = new SnakeBodyPiece(randomX * size, randomY * size, size);
 	}
 
 }

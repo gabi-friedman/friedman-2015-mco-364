@@ -11,7 +11,7 @@ public class GameLoopThread extends Thread {
 	public void run() {
 		while (true) {
 			comp.getWorldComponent().getWorld()
-					.setDirection(comp.getDirection());
+			.setDirection(comp.getDirection());
 			comp.getWorldComponent().getWorld().move();
 			comp.repaint();
 			try {
