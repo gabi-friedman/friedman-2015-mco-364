@@ -5,6 +5,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class WriterThread extends Thread{
@@ -15,27 +16,45 @@ public class WriterThread extends Thread{
 	public WriterThread(LinkedBlockingQueue<String> lbq, ArrayList<Socket> sockets) {
 		this.lbq = lbq;
 		this.sockets = sockets;
+		
+		byte b;
+		
 	}
-
+	
 	@Override
 	public void run(){
 		while(true){
-			try {
-				msg = lbq.take();
+			try{
+				String msg = lbq.take();
+				writeToSockets(msg);
 
-				for(Socket socket: sockets){
-					OutputStream out;
-					out = socket.getOutputStream(); 
-					PrintWriter pw = new PrintWriter(out);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			} 
+		}
+	}
+
+	public void writeToSockets(String msg){
+
+		synchronized(sockets){
+			Iterator<Socket> iter = sockets.iterator();
+
+			while(iter.hasNext()){
+				Socket s = iter.next();
+				try{
+					PrintWriter pw = new PrintWriter(s.getOutputStream());
 					pw.println(msg);
 					pw.flush();
-				} 
-			}
-			catch (InterruptedException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
+				} catch (IOException e) {
+					iter.remove();
+					e.printStackTrace();
+				}
 			}
 		}
+
+		//if one socket is null throws exception- outside the for loop
+		//prints stack trace but x crash
+		//if u hav 10 and the 5th doesnt 
+
 	}
 }
