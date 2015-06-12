@@ -8,49 +8,44 @@ import java.awt.image.BufferedImage;
 import javax.swing.JPanel;
 
 public class Canvas extends JPanel {
-
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	public static final int WIDTH = 600;
+	public static final int HEIGHT = 600;
+	
 	private BufferedImage image;
 	private Point mousePressed;
 	private Point mouseDragged;
 	private Color color;
+	private BrushListener listener;
 
 	public Canvas(int width, int height) {
-		image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+		image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		image.getGraphics().setColor(Color.WHITE);
 		image.getGraphics().fillRect(0, 0, width, height);
-
 	}
 
 	@Override
-	protected void paintComponent(Graphics g) {
-		super.paintComponent(g);
-		g.drawImage(image, 0, 0, null);
-
-		if (mousePressed != null && mouseDragged != null) {
-			int x = Math.min(mousePressed.x, mouseDragged.x);
-			int y = Math.min(mousePressed.y, mouseDragged.y);
-			int width = Math.abs(mousePressed.x - mouseDragged.x);
-			int height = Math.abs(mousePressed.y - mouseDragged.y);
-			int location = x+ width;
-			if (location > 600){
-				int over = location - 600;
-				width -=over;
-			}
-			location = y + height;
-			if (location > 600){
-				int over = location - 600;
-				height -=over;
-			}
-			
-			
-			g.setColor(color);
-			g.drawRect(x, y, width, height);
+	protected void paintComponent(Graphics graphics) {
+		super.paintComponent(graphics);
+		graphics.drawImage(image, 0, 0, null);
+		if (listener != null && mousePressed != null) {
+			listener.draw(graphics);
 		}
+	}
+	
+	public void setMousePressed(Point mousePressed) {
+		this.mousePressed = mousePressed;
+	}
 
+	public void setMouseDragged(Point mouseDragged) {
+		this.mouseDragged = mouseDragged;
+	}
+
+	public BrushListener getListener() {
+		return listener;
 	}
 
 	public BufferedImage getImage() {
@@ -61,11 +56,7 @@ public class Canvas extends JPanel {
 		this.color = color;
 	}
 
-	public void setMousePressed(Point mousePressed) {
-		this.mousePressed = mousePressed;
-	}
-
-	public void setMouseDragged(Point mouseDragged) {
-		this.mouseDragged = mouseDragged;
+	public void setBrushListener(BrushListener brushListener) {
+		this.listener = brushListener;
 	}
 }

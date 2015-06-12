@@ -1,6 +1,7 @@
 package friedman.paint;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Container;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -10,21 +11,21 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+
 public class PaintFrame extends JFrame {
 
-	private static final long serialVersionUID = 1L;
 	public static final int WIDTH = 600;
 	public static final int HEIGHT = 600;
 	private Canvas canvas;
 	private DrawListener dl;
 
-	private Colors[] colors;
-	private JButton[] colorBtns;
-	private Mode[] modes;
-	private JButton[] modeBtns;
-	
 	private JPanel modeLayout;
 	private JPanel colorLayout;
+
+	private ModeButton pencil;
+	private ModeButton fillRect;
+	private ModeButton emptyRect;
+	private JButton refresh;
 
 	public PaintFrame() {
 
@@ -32,37 +33,58 @@ public class PaintFrame extends JFrame {
 		setTitle("Paint!");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-		colors = Colors.values();
+		setLayout(new BorderLayout());
+		canvas = new Canvas(600, 600);
+		add(canvas, BorderLayout.CENTER);
 
-		colorBtns = new JButton[colors.length];
+		ColorButton[] colors = {new ColorButton(Color.RED),
+				new ColorButton(Color.ORANGE),
+				new ColorButton(Color.YELLOW),
+				new ColorButton(Color.GREEN),
+				new ColorButton(Color.CYAN),
+				new ColorButton(Color.BLUE),
+				new ColorButton(Color.MAGENTA),
+				new ColorButton(Color.PINK),
+				new ColorButton(Color.LIGHT_GRAY),
+				new ColorButton(Color.GRAY),
+				new ColorButton(Color.DARK_GRAY),
+				new ColorButton(Color.BLACK),
+				new ColorButton(Color.WHITE)};
+
+		refresh = new JButton("Refresh");
+		refresh.addActionListener(refreshListener);
+		
+
+		pencil = new ModeButton("Pencil", new PencilListener(canvas));
+		pencil.addActionListener(genericListener);
+		fillRect = new ModeButton("Fill Rect", new FillRectangleListener(canvas));
+		fillRect.addActionListener(genericListener);
+		emptyRect = new ModeButton("Empty Rect", new EmptyRectangleListener(canvas));
+		emptyRect.addActionListener(genericListener);
+		
+		colorLayout = new JPanel();
+		modeLayout = new JPanel();
+		
+		colorLayout.setLayout(new GridLayout(1,13));
+		modeLayout.setLayout(new GridLayout(1,4));
+		
 		for(int i = 0; i < colors.length; i++){
-			colorBtns[i] = new JButton();
-			colorBtns[i].setBackground(colors[i].getColor());
-			colorBtns[i].addActionListener(colorButtonListener);
+			colors[i].addActionListener(colorButtonListener);
+			colorLayout.add(colors[i]);
 		}
-
-		modes = Mode.values();
-		modeBtns = new JButton[Mode.values().length];
-		for(int i = 0; i < modeBtns.length; i++){
-			modeBtns[i] = new JButton();
-			modeBtns[i].setText(modes[i].toString());
-			modeBtns[i].addActionListener(changeMode);
-		}		
+		
+		modeLayout.add(refresh);
+		modeLayout.add(pencil);
+		modeLayout.add(fillRect);
+		modeLayout.add(emptyRect);		
 
 		setLayout(new BorderLayout());
+		
 		canvas = new Canvas(WIDTH, HEIGHT);
 		dl = new DrawListener(canvas);
 		canvas.addMouseListener(dl);
 		canvas.addMouseMotionListener(dl);
-
-
 		add(canvas, BorderLayout.CENTER);
-
-		colorLayout = new JPanel();
-		modeLayout = new JPanel();
-		colorLayout.setLayout(new GridLayout(1,13));
-		modeLayout.setLayout(new GridLayout(1,2));
-		putButtonsInLayout();
 		
 		Container north = new Container();
 		north.setLayout(new GridLayout(2,1));
@@ -70,47 +92,44 @@ public class PaintFrame extends JFrame {
 		north.add(modeLayout);
 		add(north, BorderLayout.NORTH);
 
-
 	}
 
 	ActionListener colorButtonListener = new ActionListener() {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			for (int i = 0; i < colors.length; i++) {
-				if (e.getSource().equals(colors[i])) {
-					dl.setColor(colorBtns[i].getBackground());
-					System.out.println(dl.getColor());
-					System.out.println("In AL");
-				}
-			}
+			ColorButton clicked = (ColorButton) e.getSource();
+			dl.setColor(clicked.getColor());
 		}
 	};
 
-	ActionListener changeMode = new ActionListener() {
+	ActionListener refreshListener = new ActionListener() {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			JButton clicked = (JButton) e.getSource();
-			for(int i = 0; i < modes.length; i++){
-				if (clicked.getText().equals(modes[i])){
-					dl.setMode(modes[i]);
 
-					System.out.println("In AL");
-				}
+			JButton button = (JButton) e.getSource();
+
+			if (button.equals(refresh)) {
+				canvas.getImage().getGraphics().fillRect(0, 0, 600, 600);
+				canvas.repaint();
 			}
 		}
 
 	};
 
-	
-	public void putButtonsInLayout(){
-		for(int i = 0; i < colors.length; i++){
-			colorLayout.add(colorBtns[i]);
-		}
+	ActionListener genericListener = new ActionListener() {
 
-		for(int i = 0; i < modeBtns.length; i++){
-			modeLayout.add(modeBtns[i]); 
+		@Override
+		public void actionPerformed(ActionEvent event) {
+			ModeButton button = (ModeButton) event.getSource();
+			BrushListener brushListener = button.getListener();
+			canvas.setBrushListener(brushListener);
+			canvas.addMouseListener(brushListener);
+			canvas.addMouseMotionListener(brushListener);
 		}
+	};
+
+	public static void main(String[] args) {
+		new PaintFrame().setVisible(true);
 	}
-
 }
